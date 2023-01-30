@@ -9,6 +9,19 @@ export const fetchLogin = createAsyncThunk(
   }
 );
 
+export const fetchRegister = createAsyncThunk(
+  "auth/fetchRegister",
+  async (params) => {
+    const { data } = await axios.post("/auth/register", params);
+    return data;
+  }
+);
+
+export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
+  const { data } = await axios.get("/auth/me");
+  return data;
+});
+
 const initialState = {
   user: null,
   status: "loading",
@@ -23,6 +36,7 @@ const authSlice = createSlice({
       state.user = null;
       state.status = "success";
       state.isAuth = false;
+      window.localStorage.removeItem("token");
     },
   },
   extraReducers(builder) {
@@ -41,8 +55,42 @@ const authSlice = createSlice({
       state.status = "error";
       state.isAuth = false;
     });
+
+    builder.addCase(fetchUser.pending, (state) => {
+      state.user = null;
+      state.status = "loading";
+      state.isAuth = false;
+    });
+    builder.addCase(fetchUser.fulfilled, (state, action) => {
+      state.user = action.payload;
+      state.status = "success";
+      state.isAuth = true;
+    });
+    builder.addCase(fetchUser.rejected, (state) => {
+      state.user = null;
+      state.status = "error";
+      state.isAuth = false;
+    });
+
+    builder.addCase(fetchRegister.pending, (state) => {
+      state.user = null;
+      state.status = "loading";
+      state.isAuth = false;
+    });
+    builder.addCase(fetchRegister.fulfilled, (state, action) => {
+      state.user = action.payload;
+      state.status = "success";
+      state.isAuth = true;
+    });
+    builder.addCase(fetchRegister.rejected, (state) => {
+      state.user = null;
+      state.status = "error";
+      state.isAuth = false;
+    });
   },
 });
+
+export const selectAuth = (state) => state.auth;
 
 export const { logout } = authSlice.actions;
 

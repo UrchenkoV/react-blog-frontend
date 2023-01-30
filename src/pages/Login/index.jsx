@@ -6,13 +6,15 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 
 import styles from "./Login.module.scss";
 import { fetchLogin } from "../../redux/auth/slice";
 
 export const Login = () => {
   const dispatch = useDispatch();
-  const { user, isAuth } = useSelector((state) => state.auth);
+  const { isAuth } = useSelector((state) => state.auth);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   const {
     register,
@@ -25,7 +27,17 @@ export const Login = () => {
     },
   });
 
-  const onSubmit = (data) => dispatch(fetchLogin(data));
+  const onSubmit = async (req) => {
+    const data = await dispatch(fetchLogin(req));
+
+    if (!data.payload) {
+      return setErrorMessage("Неверный логин или пароль.");
+    }
+
+    if ("token" in data.payload) {
+      window.localStorage.setItem("token", data.payload.token);
+    }
+  };
 
   if (isAuth) {
     return <Navigate to="/" />;
@@ -33,6 +45,8 @@ export const Login = () => {
 
   return (
     <Paper classes={{ root: styles.root }} elevation={0}>
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+
       <Typography classes={{ root: styles.title }} variant="h5">
         Вход в аккаунт
       </Typography>
@@ -60,7 +74,13 @@ export const Login = () => {
           }
           fullWidth
         />
-        <Button type="submit" size="large" variant="contained" fullWidth>
+        <Button
+          disabled={!isValid}
+          type="submit"
+          size="large"
+          variant="contained"
+          fullWidth
+        >
           Войти
         </Button>
       </form>
