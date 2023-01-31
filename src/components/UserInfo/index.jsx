@@ -11,7 +11,9 @@ export const UserInfo = ({ avatar, fullName, additionalText }) => {
       />
       <div className={styles.userDetails}>
         <span className={styles.userName}>{fullName}</span>
-        <span className={styles.additional}>{additionalText}</span>
+        <span className={styles.additional}>
+          {new Date(additionalText).toLocaleDateString()}
+        </span>
       </div>
     </div>
   );

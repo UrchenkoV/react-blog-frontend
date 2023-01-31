@@ -13,24 +13,30 @@ export const Home = () => {
   const dispatch = useDispatch();
   const { post, tag } = useSelector((state) => state.post);
   const { user } = useSelector((state) => state.auth);
+  const [tabs, setTabs] = React.useState(["Новые", "Популярные"]);
+  const [tabActiveIndex, setTabsActiveIndex] = React.useState(0);
 
   const isLoading = post.status === "loading";
   const isTagLoading = post.status === "loading";
 
   React.useEffect(() => {
+    console.log(11111);
     dispatch(fetchPost());
     dispatch(fetchTags());
   }, []);
+
   return (
     <>
       <Tabs
         style={{ marginBottom: 15 }}
-        value={0}
+        value={tabActiveIndex}
         aria-label="basic tabs example"
       >
-        <Tab label="Новые" />
-        <Tab label="Популярные" />
+        {tabs.map((item, i) => (
+          <Tab key={i} label={item} onClick={() => setTabsActiveIndex(i)} />
+        ))}
       </Tabs>
+
       <Grid container spacing={4}>
         <Grid xs={8} item>
           {(isLoading ? [...Array(5)] : post.items).map((obj, i) =>

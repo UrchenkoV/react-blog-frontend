@@ -1,4 +1,5 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import IconButton from "@mui/material/IconButton";
@@ -10,6 +11,7 @@ import CommentIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import styles from "./Post.module.scss";
 import { UserInfo } from "../UserInfo";
 import { PostSkeleton } from "./Skeleton";
+import { fetchDeletePost } from "../../redux/post/slice";
 
 export const Post = ({
   id,
@@ -25,11 +27,21 @@ export const Post = ({
   isLoading,
   isEditable,
 }) => {
+  const dispatch = useDispatch();
+
   if (isLoading) {
     return <PostSkeleton />;
   }
 
-  const onClickRemove = () => {};
+  const onClickRemove = async () => {
+    if (window.confirm("Подтвердите удаление статьи.")) {
+      const data = await dispatch(fetchDeletePost(id));
+
+      if (!data.payload) {
+        alert("Произошла ошибка.");
+      }
+    }
+  };
 
   return (
     <div className={clsx(styles.root, { [styles.rootFull]: isFullPost })}>
@@ -48,7 +60,7 @@ export const Post = ({
       {imageUrl && (
         <img
           className={clsx(styles.image, { [styles.imageFull]: isFullPost })}
-          src={imageUrl}
+          src={"http://localhost:5000" + imageUrl}
           alt={title}
         />
       )}
@@ -67,7 +79,9 @@ export const Post = ({
               </li>
             ))}
           </ul>
+
           {children && <div className={styles.content}>{children}</div>}
+
           <ul className={styles.postDetails}>
             <li>
               <EyeIcon />
