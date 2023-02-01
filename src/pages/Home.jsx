@@ -8,21 +8,38 @@ import { Post } from "../components/Post";
 import { TagsBlock } from "../components/TagsBlock";
 import { CommentsBlock } from "../components/CommentsBlock";
 import { fetchPost, fetchTags } from "../redux/post/slice";
+import { fetchComments, selectComment } from "../redux/comment/slice";
 
 export const Home = () => {
   const dispatch = useDispatch();
   const { post, tag } = useSelector((state) => state.post);
   const { user } = useSelector((state) => state.auth);
+  const { comments } = useSelector(selectComment);
   const [tabs, setTabs] = React.useState(["Новые", "Популярные"]);
   const [tabActiveIndex, setTabsActiveIndex] = React.useState(0);
 
   const isLoading = post.status === "loading";
   const isTagLoading = post.status === "loading";
 
+  /**
+   * + Вывод всех статей и популярных.
+   * Добавление комментариев к статье и вывод. Так же общихй их вывод на главной.
+   * Удаление не только статьи, но и картинку.
+   * Отображение статей по тэгам.
+   */
+
   React.useEffect(() => {
-    console.log(11111);
+    if (tabActiveIndex === 1) {
+      dispatch(fetchPost("desc"));
+      return;
+    }
+
     dispatch(fetchPost());
+  }, [tabActiveIndex]);
+
+  React.useEffect(() => {
     dispatch(fetchTags());
+    dispatch(fetchComments());
   }, []);
 
   return (
@@ -60,25 +77,8 @@ export const Home = () => {
         </Grid>
         <Grid xs={4} item>
           <TagsBlock items={tag.items} isLoading={isTagLoading} />
-          <CommentsBlock
-            items={[
-              {
-                user: {
-                  fullName: "Вася Пупкин",
-                  avatarUrl: "https://mui.com/static/images/avatar/1.jpg",
-                },
-                text: "Это тестовый комментарий",
-              },
-              {
-                user: {
-                  fullName: "Иван Иванов",
-                  avatarUrl: "https://mui.com/static/images/avatar/2.jpg",
-                },
-                text: "When displaying three lines or more, the avatar is not aligned at the top. You should set the prop to align the avatar at the top",
-              },
-            ]}
-            isLoading={false}
-          />
+
+          <CommentsBlock items={comments} isLoading={false} />
         </Grid>
       </Grid>
     </>
