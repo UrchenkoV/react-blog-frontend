@@ -29,7 +29,6 @@ const commentSlice = createSlice({
     builder.addCase(fetchComments.fulfilled, (state, action) => {
       state.status = "success";
       state.comments = action.payload;
-      console.log(state, action);
     });
     builder.addCase(fetchComments.rejected, (state) => {
       state.status = "error";

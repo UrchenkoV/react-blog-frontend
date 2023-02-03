@@ -21,6 +21,14 @@ export const fetchDeletePost = createAsyncThunk(
   }
 );
 
+export const fetchPostById = createAsyncThunk(
+  "posts/fetchPostByIdStatus",
+  async (id) => {
+    const { data } = await axios.get(`/posts/${id}`);
+    return data;
+  }
+);
+
 const initialState = {
   post: {
     items: [],
@@ -30,12 +38,22 @@ const initialState = {
     items: [],
     status: "loading",
   },
+  fullPost: {
+    item: null,
+    status: "loading",
+  },
 };
 
 export const postSlice = createSlice({
   name: "post",
   initialState,
-  reducers: {},
+  reducers: {
+    upadateFullPostOnAddComment(state, action) {
+      state.fullPost.item.commentCount = state.fullPost.item.commentCount + 1;
+      state.fullPost.item.comments.push(action.payload);
+    },
+  },
+
   extraReducers: (builder) => {
     builder.addCase(fetchPost.pending, (state) => {
       state.post.status = "loading";
@@ -68,9 +86,24 @@ export const postSlice = createSlice({
         (obj) => obj._id !== action.meta.arg
       );
     });
+    //
+    builder.addCase(fetchPostById.pending, (state) => {
+      state.fullPost.status = "loading";
+      state.fullPost.item = null;
+    });
+    builder.addCase(fetchPostById.fulfilled, (state, action) => {
+      state.fullPost.status = "success";
+      state.fullPost.item = action.payload;
+    });
+    builder.addCase(fetchPostById.rejected, (state) => {
+      state.fullPost.status = "error";
+      state.fullPost.item = null;
+    });
   },
 });
 
-export const {} = postSlice.actions;
+export const selectPost = (state) => state.post;
+
+export const { upadateFullPostOnAddComment } = postSlice.actions;
 
 export default postSlice.reducer;

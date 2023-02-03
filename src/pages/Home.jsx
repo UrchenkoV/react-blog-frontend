@@ -23,7 +23,7 @@ export const Home = () => {
 
   /**
    * + Вывод всех статей и популярных.
-   * Добавление комментариев к статье и вывод. Так же общихй их вывод на главной.
+   * + Добавление комментариев к статье и вывод. Так же общихй их вывод на главной.
    * Удаление не только статьи, но и картинку.
    * Отображение статей по тэгам.
    */
@@ -68,7 +68,7 @@ export const Home = () => {
                 user={obj.user}
                 createdAt={obj.createdAt}
                 viewsCount={obj.viewsCount}
-                commentsCount={3}
+                commentsCount={obj.commentCount}
                 tags={obj.tags}
                 isEditable={obj.user._id === user?._id}
               />

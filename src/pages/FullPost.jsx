@@ -1,26 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Post } from "../components/Post";
 import { Index } from "../components/AddComment";
 import { CommentsBlock } from "../components/CommentsBlock";
-import axios from "../axios";
+import { selectAuth } from "../redux/auth/slice";
+import { fetchPostById, selectPost } from "../redux/post/slice";
 
 export const FullPost = () => {
+  const dispatch = useDispatch();
   const { id } = useParams();
-  const [data, setData] = React.useState();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useSelector(selectAuth);
+  const { fullPost } = useSelector(selectPost);
+  const data = fullPost.item;
+  const isLoading = fullPost.status === "loading";
+  const isError = fullPost.status === "error";
 
   React.useEffect(() => {
-    axios
-      .get(`/posts/${id}`)
-      .then((res) => setData(res.data))
-      .catch((err) => console.log(err))
-      .finally(() => setIsLoading(false));
+    dispatch(fetchPostById(id));
   }, []);
 
-  if (isLoading) {
+  if (isLoading || isError) {
     return <Post isLoading={true} />;
   }
 
@@ -33,32 +35,14 @@ export const FullPost = () => {
         user={data.user}
         createdAt={data.createdAt}
         viewsCount={data.viewsCount}
-        commentsCount={3}
+        commentsCount={data.commentCount}
         tags={data.tags}
         isFullPost
       >
         <ReactMarkdown children={data.text} />
       </Post>
-      <CommentsBlock
-        items={[
-          {
-            user: {
-              fullName: "Вася Пупкин",
-              avatarUrl: "https://mui.com/static/images/avatar/1.jpg",
-            },
-            text: "Это тестовый комментарий 555555",
-          },
-          {
-            user: {
-              fullName: "Иван Иванов",
-              avatarUrl: "https://mui.com/static/images/avatar/2.jpg",
-            },
-            text: "When displaying three lines or more, the avatar is not aligned at the top. You should set the prop to align the avatar at the top",
-          },
-        ]}
-        isLoading={false}
-      >
-        <Index />
+      <CommentsBlock items={data.comments} isLoading={isLoading}>
+        {user && <Index avatar={user.avatar} />}
       </CommentsBlock>
     </>
   );
