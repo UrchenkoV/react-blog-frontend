@@ -29,6 +29,14 @@ export const fetchPostById = createAsyncThunk(
   }
 );
 
+export const fetchPostsByTag = createAsyncThunk(
+  "posts/fetchPostsByTagStatus",
+  async (slug) => {
+    const { data } = await axios.get(`/posts?tag=${slug}`);
+    return data;
+  }
+);
+
 const initialState = {
   post: {
     items: [],
@@ -98,6 +106,19 @@ export const postSlice = createSlice({
     builder.addCase(fetchPostById.rejected, (state) => {
       state.fullPost.status = "error";
       state.fullPost.item = null;
+    });
+    //
+    builder.addCase(fetchPostsByTag.pending, (state) => {
+      state.post.status = "loading";
+      state.post.items = [];
+    });
+    builder.addCase(fetchPostsByTag.fulfilled, (state, action) => {
+      state.post.status = "success";
+      state.post.items = action.payload;
+    });
+    builder.addCase(fetchPostsByTag.rejected, (state) => {
+      state.post.status = "error";
+      state.post.items = [];
     });
   },
 });

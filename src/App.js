@@ -3,7 +3,14 @@ import { Routes, Route } from "react-router-dom";
 import Container from "@mui/material/Container";
 
 import { Header } from "./components";
-import { Home, FullPost, Registration, AddPost, Login } from "./pages";
+import {
+  Home,
+  FullPost,
+  Registration,
+  AddPost,
+  Login,
+  TagPosts,
+} from "./pages";
 import { useDispatch } from "react-redux";
 import { fetchUser } from "./redux/auth/slice";
 
@@ -27,6 +34,7 @@ function App() {
           <Route path="/post-create" element={<AddPost />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="/tags/:slug" element={<TagPosts />} />
         </Routes>
       </Container>
     </>
