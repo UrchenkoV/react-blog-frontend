@@ -10,6 +10,7 @@ import "easymde/dist/easymde.min.css";
 import styles from "./AddPost.module.scss";
 import { selectAuth } from "../../redux/auth/slice";
 import axios from "../../axios";
+import { Alert } from "@mui/material";
 
 export const AddPost = () => {
   const { isAuth } = useSelector(selectAuth);
@@ -55,7 +56,28 @@ export const AddPost = () => {
     }
   };
 
-  const onClickRemoveImage = () => {};
+  const [isRemoveImage, setIsRemoveImage] = React.useState(false);
+  const [messageRemoveImage, setMessageRemoveImage] = React.useState("");
+  const [errRemoveImage, setErrRemoveImage] = React.useState("");
+
+  const onClickRemoveImage = async () => {
+    try {
+      setIsRemoveImage(true);
+      const { data } = await axios.patch(`/posts/${id}/destroy-image`);
+
+      setMessageRemoveImage(data.message);
+      setImageUrl("");
+    } catch (error) {
+      console.warn(error);
+      setErrRemoveImage(error.response.data.message);
+    }
+    setIsRemoveImage(false);
+
+    setTimeout(() => {
+      setMessageRemoveImage("");
+      setErrRemoveImage("");
+    }, 5000);
+  };
 
   const onChange = React.useCallback((value) => {
     setText(value);
@@ -126,6 +148,11 @@ export const AddPost = () => {
         </>
       )}
 
+      {messageRemoveImage && (
+        <Alert severity="success">{messageRemoveImage}</Alert>
+      )}
+      {errRemoveImage && <Alert severity="error">{errRemoveImage}</Alert>}
+
       {imageUrl && (
         <div className={styles.preview}>
           <img
@@ -137,6 +164,7 @@ export const AddPost = () => {
             variant="contained"
             color="error"
             onClick={onClickRemoveImage}
+            disabled={isRemoveImage}
           >
             Удалить
           </Button>
